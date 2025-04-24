@@ -1,0 +1,20 @@
+clear all
+close all
+
+n = 100000; % Number of samples
+
+%Regla de la Raiz cuadrada para definir la cantidad de bines
+bines = ceil(sqrt(n));
+
+Z1 = normal(1, n);
+% Plot the histogram
+figure;
+histogram(Z1, bines, 'Normalization', 'pdf', 'FaceColor', '#c0688d');
+hold on
+title('Histograma de Z_1');
+
+
+function z = normal(sigma, n)
+    matriz_normal = randi([-sigma sigma], 12, n);
+    z = mean(matriz_normal);
+end
