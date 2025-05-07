@@ -1,63 +1,101 @@
+clear all
 close all
 
-% filtro discreto de bayes
-% el robot se mueve en un mundo 1D de 20 celdas
-% el robot se encuentra inicialmente en la celda 10
+% Definir número de celdas
+n_celdas = 20;
 
-% En cada paso, el robot puede ejecutar el comando ‘avanzar un paso’ o ‘retroceder un
-% paso’. Este movimiento puede tener cierto error, por lo que el resultado puede no siempre
-% ser el esperado. De hecho, el robot se comporta de la siguiente manera: al ejecutar
-% ‘avanzar un paso’ el resultado ser´a el siguiente:
-% el 25 % de las veces, el robot no se mover´a
-% el 50 % de las veces, el robot avanzar´a una celda
-% el 25 % de las veces, el robot se mover´a dos celdas
-% el robot en ning´un caso se mover´a en el sentido opuesto o avanzar´a m´as de dos
-% celdas.
-% El modelo de ‘retroceder un paso’ es similar, pero en el sentido opuesto. Ya que el mundo
-% es acotado, el comportamiento al intentar ‘avanzar un paso’ en los bordes es el siguiente:
-% si el robot est´a en la ´ultima celda, al tratar de avanzar se quedar´a en la misma
-% celda el 100 % de las veces
-% si el robot est´a en la pen´ultima celda, al tratar de avanzar se quedar´a en la misma
-% celda el 25 % de las veces, y se mover´a a la pr´oxima celda el 75 % de las veces.
-% Lo mismo suceder´a en sentido contrario en el otro extremo del mundo al intentar retroceder.
-% Implementar un filtro de Bayes discreto en Octave/MATLAB y estimar la posici´on final
-% del robot (belief) despues de ejecutar 9 comandos consecutivos de ‘avanzar un paso’ y
-% luego 3 comandos de ‘retroceder un paso’. Graficar el belief resultante de la posici´on del
-% robot. Comenzar con el belief inicial de bel=[zeros(10; 1); 1; zeros(9; 1)];.
+% Belief inicial: el robot está en la celda 11
+bel = [zeros(10, 1); 1; zeros(9, 1)];
+
+% Crear figura
+figure;
+tiledlayout(4, 4, 'TileSpacing', 'compact');
+
+% Ejecutar 9 comandos de avanzar (+1)
+for i = 1:9
+    bel = bayes_filter(bel, 1);
+    nexttile
+    bar(1:n_celdas, bel, 'FaceColor', '#5DADE2');
+    title(['Paso ', num2str(i)]);
+end
+
+% Luego, 3 comandos de retroceder (-1)
+for i = 1:3
+    bel = bayes_filter(bel, -1);
+    nexttile
+    bar(1:n_celdas, bel, 'FaceColor', '#F1948A');
+    title(['Retroceso ', num2str(i)]);
+end
+
+% Último subplot: belief final
+nexttile
+bar(1:n_celdas, bel, 'FaceColor', '#58D68D');
+title('Belief final');
+xlabel('Celda');
+ylabel('Belief');
+
+sgtitle('Evolución del belief del robot');
 
 
-
-
-proba = [0.25; 0.5; 0.25]; % probabilidades de moverse 0, 1 o 2 celdas
-n = 20; % número de celdas
-bel = [zeros(n, 1); 1; zeros(n-1, 1)]; % creamos el belief inicial
-
-
-
-
-
+% Funciones usadas
 function transicion = transicion(x_ant, x, accion)
+    transicion = 0; % Inicializar en cero
+    n = 20; % Número de celdas del mundo
 
-    % Probabilidad de moverse de x_ant a x dado la acción
     if accion == 1 % moverse a la derecha
-        if x == x_ant
+        if x_ant == n
+            if x == n
+                transicion = 1.0;
+            end
+        elseif x_ant == n-1
+            if x == n-1
+                transicion = 0.25;
+            elseif x == n
+                transicion = 0.75;
+            end
+        else
+            if x == x_ant
+                transicion = 0.25;
+            elseif x == x_ant + 1
+                transicion = 0.5;
+            elseif x == x_ant + 2
+                transicion = 0.25;
+            end
+        end
+    elseif accion == -1 % moverse a la izquierda
+        if x_ant == 1
+            if x == 1
+                transicion = 1.0;
+            end
+        elseif x_ant == 2
+            if x == 1
+                transicion = 0.75;
+            elseif x == 2
+                transicion = 0.25;
+            end
+        else
+            if x == x_ant
+                transicion = 0.25;
+            elseif x == x_ant - 1
+                transicion = 0.5;
+            elseif x == x_ant - 2
+                transicion = 0.25;
+            end
         end
     end
 end
 
-
 function belief_nuevo = bayes_filter(belief_actual, accion)
-
     n = length(belief_actual);
     belief_nuevo = zeros(n, 1);
 
-    for x = 1:n  % posición actual
-        for x_ant = 1:n  % desde dónde pudo haber venido
-            p = transicion(x_ant, x, accion); % prob de moverse de x_ant a x
+    for x = 1:n
+        for x_ant = 1:n
+            p = transicion(x_ant, x, accion);
             belief_nuevo(x) = belief_nuevo(x) + p * belief_actual(x_ant);
         end
     end
 
-    % Normalización (suma total debe ser 1)
+    % Normalización
     belief_nuevo = belief_nuevo / sum(belief_nuevo);
 end
