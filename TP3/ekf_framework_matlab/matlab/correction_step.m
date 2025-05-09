@@ -2,7 +2,7 @@ function [mu_, sigma_] = correction_step(mu, sigma, z, l)
     mu_ = mu;
     sigma_ = sigma;
 
-    R = diag([0.5^2, 0.5^2]);  % Ruido de medición asumido (range, bearing)
+    R = 0.5^2;  % Varianza escalar, ya que sólo hay rango
 
     for i = 1:length(z)
         j = z(i).id;
@@ -13,23 +13,18 @@ function [mu_, sigma_] = correction_step(mu, sigma, z, l)
         dy = my - mu_(2);
         q = dx^2 + dy^2;
 
-        % Medición esperada
-        z_hat = [sqrt(q);
-                 atan2(dy, dx) - mu_(3)];
-        z_hat(2) = atan2(sin(z_hat(2)), cos(z_hat(2)));  % Normalización
+        % Medición esperada 
+        z_hat = sqrt(q);
 
-        % Jacobiano
-        H = [ -dx / sqrt(q), -dy / sqrt(q), 0;
-               dy / q,       -dx / q,     -1 ];
+        % Jacobiano de h respecto al estado
+        H = [-dx / sqrt(q), -dy / sqrt(q), 0];  % 1x3
 
         % Kalman
-        S = H * sigma_ * H.' + R;
-        K = sigma_ * H.' / S;
+        S = H * sigma_ * H.' + R;     
+        K = sigma_ * H.' / S;        
 
-        z_real = [z(i).range;
-                  z(i).bearing];
+        z_real = z(i).range;
         innovation = z_real - z_hat;
-        innovation(2) = atan2(sin(innovation(2)), cos(innovation(2)));
 
         % Corrección
         mu_ = mu_ + K * innovation;

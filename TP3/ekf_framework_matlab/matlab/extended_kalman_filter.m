@@ -44,3 +44,4 @@ end
 % Display the final state estimate
 fprintf('Final pose: ')
 disp('mu = '); disp(mu); disp(', sigma = '); disp(sigma);
+
