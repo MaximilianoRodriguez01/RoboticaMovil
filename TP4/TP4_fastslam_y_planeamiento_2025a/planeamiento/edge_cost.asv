@@ -1,0 +1,8 @@
+function cost = edge_cost(parent, child, map)
+
+
+  % Calcular distancia euclidiana
+  cost_aux = sqrt((child(1) - parent(1))^2 + (child(2) - parent(2))^2);
+
+  cost = cost_aux + 10 * map(child(1), child(2))
+end
