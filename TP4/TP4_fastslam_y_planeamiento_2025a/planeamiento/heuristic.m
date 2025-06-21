@@ -18,9 +18,9 @@ function heur = heuristic(cell, goal)
   heur = sqrt(dx^2 + dy^2);
 
   %% Caso para k != 1:
-  k = 2;
+  k = 10;
   heur = k * heur;
 
   %% Caso para solo Dijkstra
-  heur = 0;
+  % heur = 0;
 end
