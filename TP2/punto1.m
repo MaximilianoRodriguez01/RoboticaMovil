@@ -1,50 +1,60 @@
 clear all
 close all
 
-n = 100000;
+n = 1e6;
 
 bines = ceil(sqrt(n));
 
 mu = 2;
 sigma = 1;
 
-
+tic;
 Z1 = normal_con_uniformes(mu, sigma, n);
+tiempo1 = toc;
 figure;
 histogram(Z1, bines, 'Normalization', 'pdf', 'FaceColor', '#c0688d');
 hold on
-title('Histograma de Z_1 generado con la suma de 12 uniformes')
+title('Histograma de Z_1 generado con la suma de 12 uniformes (tiempo: ' + string(tiempo1) + ' s)');
 xlabel('Z_1');
 ylabel('Densidad de probabilidad')
+xline(mu, 'r', 'Media', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu + sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu - sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
 grid on
 
+tic;
 Z2 = normal_muestra_con_rechazo(mu, sigma, n);
+tiempo2 = toc;
 figure;
 histogram(Z2, bines, 'Normalization', 'pdf', 'FaceColor', '#c0688d');
 hold on
-title('Histograma de Z_2 generado con el método de rechazo')
+title('Histograma de Z_2 generado con el método de rechazo (tiempo: ' + string(tiempo2) + ' s)');
 xlabel('Z_2');
 ylabel('Densidad de probabilidad')
+xline(mu, 'r', 'Media', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu + sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu - sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
 grid on
 
-
+tic;
 Z3 = normal_box_muller(mu, sigma, n);
+tiempo3 = toc;
 figure;
 histogram(Z3, bines, 'Normalization', 'pdf', 'FaceColor', '#c0688d');
 hold on
-title('Histograma de Z_3 generado con el método de Box-Muller');
+title('Histograma de Z_3 generado con el método de Box-Muller (tiempo: ' + string(tiempo3) + ' s)');
 xlabel('Z_3');
 ylabel('Densidad de probabilidad');
+xline(mu, 'r', 'Media', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu + sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
+xline(mu - sigma, 'g', 'Desviación estándar', 'LabelVerticalAlignment', 'middle', 'LabelHorizontalAlignment', 'center');
 grid on
 
 
 function z = normal_box_muller(mu, sigma, n)
-    z = zeros(1, n);
-    for i = 1:n
-        u1 = rand(1, 1);
-        u2 = rand(1, 1);
-        z(i) = mu + sigma * sqrt(-2*log(u1)) * cos(2*pi*u2);
-    end
+    u1 = rand(n, 1);
+    u2 = rand(n, 1);
+    z = mu + sigma * sqrt(-2*log(u1)) .* cos(2*pi*u2);
 end
 
 

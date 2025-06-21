@@ -43,9 +43,9 @@ function x_t_mas_1 = odometria(x, u, alpha)
     delta_trans = u(3);
 
     % Agregar ruido a cada componente
-    delta_rot1_hat = delta_rot1 + normal_box_muller(0, sqrt(alpha(1)*abs(delta_rot1) + alpha(2)*delta_trans), 1);
-    delta_trans_hat = delta_trans + normal_box_muller(0, sqrt(alpha(3)*delta_trans + alpha(4)*(abs(delta_rot1) + abs(delta_rot2))), 1);
-    delta_rot2_hat = delta_rot2 + normal_box_muller(0, sqrt(alpha(1)*abs(delta_rot2) + alpha(2)*delta_trans), 1);
+    delta_rot1_hat = delta_rot1 + normal_box_muller(0, (alpha(1)*abs(delta_rot1) + alpha(2)*delta_trans), 1);
+    delta_trans_hat = delta_trans + normal_box_muller(0, (alpha(3)*delta_trans + alpha(4)*(abs(delta_rot1) + abs(delta_rot2))), 1);
+    delta_rot2_hat = delta_rot2 + normal_box_muller(0, (alpha(1)*abs(delta_rot2) + alpha(2)*delta_trans), 1);
 
     % Calcular nueva pose
     x_t_mas_1 = zeros(3, 1);
